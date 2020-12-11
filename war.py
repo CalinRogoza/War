@@ -26,7 +26,7 @@ computer_score = 0
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("War")
-icon = pygame.image.load('cards.png')
+icon = pygame.image.load('assets/cards.png')
 pygame.display.set_icon(icon)
 font = pygame.font.Font('freesansbold.ttf', 32)
 
