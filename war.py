@@ -64,6 +64,26 @@ def draw_info(player):
         screen.blit(text, (270, 95))
 
 
+def is_final():
+    if len(deck_1) == 0:
+        return 2
+    elif len(deck_2) == 0:
+        return 1
+    return 0
+
+
+def is_final_equal(value):
+    global deck_1, deck_2, player_score, computer_score
+    if len(deck_1) - value < 0:
+        #drawwinner
+        return 2
+    if len(deck_2) - value < 0:
+        #drawwinner
+        return 1
+    return 0
+    # show_score()
+
+
 def next_turn():
     global deck_1, deck_2, player_score, computer_score
     player_card = deck_1.pop(0)
@@ -77,22 +97,19 @@ def next_turn():
         player_score = player_score + 1
         deck_1.append(computer_card)  # se iau ambele carti de pe masa
         deck_1.append(player_card)
-        print("DECK JUCATOR" + str(len(deck_1)))
     elif player_card[2] < computer_card[2]:
         computer_score = computer_score + 1
         player_score = player_score - 1
         deck_2.append(player_card)
         deck_2.append(computer_card)
     else:                                               # Cand sunt egale
-        table_deck = [player_card, computer_card]
-        print("EGALE")
-        are_equal(player_card, computer_card, table_deck)
-        table_deck.clear()  # stergem cartile de joc de pe masa
+        if is_final_equal(player_card[2]) == 0:
+            table_deck = [player_card, computer_card]
+            print("EGALE")
+            are_equal(player_card, computer_card, table_deck)
+            table_deck.clear()  # stergem cartile de joc de pe masa
     show_score()
-    if len(deck_1) == 0:
-        print("calculator")
-    elif len(deck_2) == 0:
-        print("me")
+    # if isfinal
 
 
 def are_equal(player_card, computer_card, table_deck):
@@ -103,8 +120,21 @@ def are_equal(player_card, computer_card, table_deck):
         table_deck.append(player_card)
         table_deck.append(computer_card)
 
-    if player_card[2] > computer_card[2]:
+    draw_card_player(player_card[2])
+    draw_card_computer(computer_card[2])
 
+    if player_card[2] > computer_card[2]:
+        player_score = player_score + len(table_deck)/2
+        computer_score = computer_score - len(table_deck)/2
+        deck_1.extend(table_deck)
+    elif player_card[2] < computer_card[2]:
+        computer_score = computer_score + len(table_deck)/2
+        player_score = player_score - len(table_deck)/2
+        deck_2.extend(table_deck)
+    else:                                   # Iar sunt egale, apelam recursiv
+        if is_final_equal(player_card[2]):
+            are_equal(player_card, computer_card, table_deck)
+            print("Egale iar!")
 
 
 pygame.init()
