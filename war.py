@@ -1,4 +1,6 @@
-import pygame, random
+import pygame
+import random
+import time
 
 ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Ace", "Jack", "Queen", "King"]
 suits = ["Clubs", "Hearts", "Diamonds", "Spades"]
@@ -20,7 +22,6 @@ def initialize_decks():
 
     for card in range(0, len(deck) // 2):  # Impartim cartile
         deck_1.append(deck[card])
-
     for card in range(len(deck) // 2, len(deck)):
         deck_2.append(deck[card])
 
@@ -62,54 +63,82 @@ def draw_info(player):
     elif player == 2:
         text = font2.render("Computer takes the cards!", True, (0, 0, 0))
         screen.blit(text, (270, 95))
+    elif player == 0:
+        text = font2.render("Equal! Let's start the war!", True, (0, 0, 0))
+        screen.blit(text, (270, 95))
+        pygame.display.update()
+        print("equal")
+
+
+def draw_winner(number):
+    global running
+    if number == 2:
+        screen.fill((255, 255, 205))
+        text = font.render("COMPUTER WINS!", True, (255, 0, 0))  # Afisam castigatorul
+        screen.blit(text, (250, 270))
+        pygame.display.update()
+        time.sleep(2)
+        running = False
+    elif number == 1:
+        screen.fill((255, 255, 205))
+        text = font.render("YOU WIN!", True, (0, 154, 0))
+        screen.blit(text, (300, 270))
+        pygame.display.update()
+        time.sleep(2)
+        running = False
 
 
 def is_final():
     if len(deck_1) == 0:
+        draw_winner(2)
         return 2
     elif len(deck_2) == 0:
+        draw_winner(1)
         return 1
     return 0
 
 
 def is_final_equal(value):
-    global deck_1, deck_2, player_score, computer_score
+    global deck_1, deck_2, player_score, computer_score, running
     if len(deck_1) - value < 0:
-        #drawwinner
+        draw_winner(2)      # castiga calculatorul
         return 2
     if len(deck_2) - value < 0:
-        #drawwinner
+        draw_winner(1)      # castiga jucatorul
         return 1
     return 0
-    # show_score()
 
 
 def next_turn():
     global deck_1, deck_2, player_score, computer_score
-    player_card = deck_1.pop(0)
-    computer_card = deck_2.pop(0)
-    print(player_card[2])
-    print(computer_card[2])
-    draw_card_player(player_card[2])
-    draw_card_computer(computer_card[2])
-    if player_card[2] > computer_card[2]:
-        computer_score = computer_score - 1
-        player_score = player_score + 1
-        deck_1.append(computer_card)  # se iau ambele carti de pe masa
-        deck_1.append(player_card)
-    elif player_card[2] < computer_card[2]:
-        computer_score = computer_score + 1
-        player_score = player_score - 1
-        deck_2.append(player_card)
-        deck_2.append(computer_card)
-    else:                                               # Cand sunt egale
-        if is_final_equal(player_card[2]) == 0:
-            table_deck = [player_card, computer_card]
-            print("EGALE")
-            are_equal(player_card, computer_card, table_deck)
-            table_deck.clear()  # stergem cartile de joc de pe masa
-    show_score()
-    # if isfinal
+    if is_final() == 0:  # Daca jucatorii mai au carti, extragem una de la fiecare
+        player_card = deck_1.pop(0)
+        computer_card = deck_2.pop(0)
+        print(player_card[2])
+        print(computer_card[2])
+        draw_card_player(player_card[2])
+        draw_card_computer(computer_card[2])
+        if player_card[2] > computer_card[2]:
+            draw_info(1)
+            computer_score = computer_score - 1
+            player_score = player_score + 1
+            deck_1.append(computer_card)  # se iau ambele carti de pe masa
+            deck_1.append(player_card)
+        elif player_card[2] < computer_card[2]:
+            draw_info(2)
+            computer_score = computer_score + 1
+            player_score = player_score - 1
+            deck_2.append(player_card)
+            deck_2.append(computer_card)
+        else:                                               # Cand sunt egale
+            if is_final_equal(player_card[2]) == 0:
+                draw_info(0)
+                table_deck = [player_card, computer_card]
+                print("EGALE")
+                time.sleep(5)
+                are_equal(player_card, computer_card, table_deck)
+                table_deck.clear()  # stergem cartile de joc de pe masa
+        show_score()
 
 
 def are_equal(player_card, computer_card, table_deck):
@@ -124,17 +153,21 @@ def are_equal(player_card, computer_card, table_deck):
     draw_card_computer(computer_card[2])
 
     if player_card[2] > computer_card[2]:
-        player_score = player_score + len(table_deck)/2
-        computer_score = computer_score - len(table_deck)/2
+        draw_info(1)
+        player_score = player_score + len(table_deck)//2
+        computer_score = computer_score - len(table_deck)//2
         deck_1.extend(table_deck)
     elif player_card[2] < computer_card[2]:
-        computer_score = computer_score + len(table_deck)/2
-        player_score = player_score - len(table_deck)/2
+        draw_info(2)
+        computer_score = computer_score + len(table_deck)//2
+        player_score = player_score - len(table_deck)//2
         deck_2.extend(table_deck)
     else:                                   # Iar sunt egale, apelam recursiv
-        if is_final_equal(player_card[2]):
-            are_equal(player_card, computer_card, table_deck)
+        if is_final_equal(player_card[2]) == 0:
+            draw_info(0)
             print("Egale iar!")
+            time.sleep(5)
+            are_equal(player_card, computer_card, table_deck)
 
 
 pygame.init()
@@ -163,12 +196,4 @@ while running:
                 if 10 <= pygame.mouse.get_pos()[1] <= 60:
                     print("CLiCKED")
                     next_turn()
-                    # draw cards, compare and update score
-
-    # draw_card_player()
-    # draw_card_computer()
-
-    # draw_info(1)
-    # draw_info(2)
-    # draw_info(1)
     pygame.display.update()
