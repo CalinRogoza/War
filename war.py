@@ -99,11 +99,19 @@ def is_final():
 
 
 def is_final_equal(value):
-    global deck_1, deck_2, player_score, computer_score, running
+    global deck_1, deck_2, player_score, computer_score
     if len(deck_1) - value < 0:
+        player_score = 0
+        computer_score = 52
+        show_score()
+        time.sleep(3)       # pentru a afisa scorul, jucatorul putandu-si da seama cine a castigat vazand scorul actualizat
         draw_winner(2)      # castiga calculatorul
         return 2
     if len(deck_2) - value < 0:
+        player_score = 52
+        computer_score = 0
+        show_score()
+        time.sleep(3)
         draw_winner(1)      # castiga jucatorul
         return 1
     return 0
